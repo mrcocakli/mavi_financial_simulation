@@ -1,60 +1,112 @@
-# Mavi Giyim (BIST: MAVI) Treasury Simulation
+# Mavi Giyim Treasury Simulation
 
-Long-term, monthly-maintained treasury analyst project. Free public data only:
-KAP (kap.org.tr), Mavi Investor Relations, TCMB EVDS, TÜİK.
+A simulated corporate treasury function for Mavi Giyim Sanayi ve Ticaret A.Ş. (BIST: MAVI), built entirely from free, publicly available data. No paid terminals, no insider access — every figure traces back to a public filing or a public government data series.
 
-## Folder structure
+**Status:** Active, refreshed monthly | **License:** MIT
 
-```
+## Why this exists
+
+This project simulates the day-to-day work of a treasury/FP&A/trade finance analyst: tracking cash conversion cycles, mapping FX exposure, backtesting hedging strategies against real market data, and comparing trade financing structures — all built as a recurring, maintained system rather than a one-time exercise.
+
+## Data Sources
+
+| Source | Data | Access |
+|---|---|---|
+| [KAP](https://www.kap.org.tr) | Quarterly/annual consolidated financials | Manual extraction from filed PDFs, source-traced |
+| Mavi Investor Relations | Same filings; FX risk disclosure notes | Manual extraction, direct PDF links |
+| [TCMB EVDS](https://evds2.tcmb.gov.tr) | Daily FX rates, deposit rates, loan rates | Automated via Python (`tcmb` package) |
+| Market benchmarks | LC commission rate assumption | Documented, sourced, flagged as an assumption |
+
+## Project Phases
+
+- [x] **1. Data infrastructure** — SQLite + Python ETL pipeline
+- [x] **2. Financial baseline** — cash conversion cycle (DIO/DSO/DPO/CCC) as a time series
+- [x] **3. FX exposure mapping** — validated against Mavi's own disclosed sensitivities
+- [x] **4. Hedging policy backtest** — forward (CIRP-derived) vs. options collar vs. unhedged
+- [x] **5. Financing structure comparison** — factoring vs. LC vs. supply chain finance
+- [x] **6. Monthly treasury report** — auto-generated in Markdown, HTML, and Excel
+- [x] **7. Pipeline automation** — full refresh via a single command
+- [ ] **8. Ongoing publishing** — recurring public write-ups
+
+## Key Findings
+
+- Mavi's FX exposure is driven primarily by USD-denominated cash and debt balances, not trade receivables — most trade payables are TRY-denominated domestic transactions.
+- A forward-hedge proxy (derived via covered interest rate parity, since no free TRY forward-quote data exists) outperformed remaining unhedged in most settled quarters — driven by TRY consistently depreciating less than the interest rate differential implied.
+- Factoring receivables was found to be *more* expensive than plain commercial borrowing in Mavi's current rate environment — the opposite of the common assumption that factoring is cheap working capital.
+- An initial LC-vs-SCF cost comparison was identified as methodologically flawed (comparing a flat fee against a full-balance financing cost) and was deliberately not shipped as a "winner" — both are reported independently with a note explaining why.
+
+Full methodology, all assumptions, and complete results tables are in [`mavi_treasury_project_report.docx`](./mavi_treasury_project_report.docx) (or see `reports/` for the latest monthly output).
+
+## Project Structure
+
 mavi-treasury/
-  db/
-    schema.sql          -- SQLite schema, single source of truth for table structure
-    init_db.py           -- runs schema.sql, creates mavi_treasury.db
-    mavi_treasury.db     -- created after you run init_db.py (not in version control)
-  etl/
-    evds_client.py        -- reusable function to call the EVDS API
-    test_evds_connection.py -- Step 1 check: confirms your API key + DB write path work
-    load_fx_rates.py       -- Step 3: pulls USD/TRY, EUR/TRY daily series into fx_rates
-    load_financials.py     -- Step 2: where you'll manually enter/parse KAP figures
-  reports/                -- monthly output files land here (pdf/xlsx/pptx)
-  notebooks/              -- scratch analysis, ratio calcs, backtest work
-  .env.example            -- copy to .env, fill in your EVDS key, never commit .env
-  requirements.txt
-  README.md
-```
+├── data/ # Manually curated source CSVs (financials, FX exposure)
+│ ├── financials_template.csv
+│ └── fx_exposure_template.csv
+├── db/
+│ ├── schema.sql # Full database schema
+│ └── init_db.py
+├── etl/ # All pipeline scripts
+│ ├── load_fx_rates.py
+│ ├── load_interest_rates.py
+│ ├── load_financing_rates.py
+│ ├── load_financials.py
+│ ├── calculate_ratios.py
+│ ├── load_fx_exposure.py
+│ ├── calculate_fx_sensitivity.py
+│ ├── calculate_hedging_backtest.py
+│ ├── calculate_options_collar.py
+│ ├── calculate_financing_scenarios.py
+│ ├── generate_monthly_report.py
+│ ├── generate_monthly_report_xlsx.py
+│ └── run_pipeline.py # Runs everything, in order, in one command
+├── reports/ # Generated monthly reports
+├── verify_data.py # Data integrity checks
+├── .env.example
+├── requirements.txt
+└── README.md
 
-## Step 1 — Set up the environment (do this first, today)
+## Getting Started
 
 ```bash
-cd mavi-treasury
-python3 -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-cp .env.example .env            # then paste your EVDS key into .env
-python db/init_db.py            # builds the empty database from schema.sql
-python etl/test_evds_connection.py   # confirms EVDS tap works end to end
+git clone https://github.com/mrcocakli/mavi_financial_simulation.git
+cd mavi_financial_simulation
+pip install -r requirements.txt --break-system-packages
+
+# Get a free EVDS API key: evds2.tcmb.gov.tr → register → Profilim → API Key
+cp .env.example .env
+# then edit .env and paste your key
+
+python db/init_db.py
+python etl/run_pipeline.py
 ```
 
-If `test_evds_connection.py` prints a small table of USD/TRY and EUR/TRY rates
-for the last 10 days, your infrastructure is live. Nothing else should be
-built until this passes.
+New quarterly filing available? Manually add the relevant line items to `data/financials_template.csv` and `data/fx_exposure_template.csv` (see inline comments/format in each file), then rerun `python etl/run_pipeline.py`.
 
-## Why SQLite (not Postgres/MySQL)
+## Methodology Notes
 
-- Zero server setup, single file (`mavi_treasury.db`), trivially portable —
-  you can attach it to a job application or push it to GitHub (schema only,
-  not the .db file if it has data you don't want public).
-- SQL skills transfer 1:1 to Postgres/MySQL later; the syntax you're learning
-  on DataCamp is standard SQL, not SQLite-specific, with a couple of minor
-  exceptions (noted in schema.sql comments).
-- Swappable later: if you want Postgres for the CV signal, the schema.sql
-  is close to portable — flag it if you want that later, it's a ~1 hour swap.
+Several inputs have no free public data source and are handled as explicitly documented proxies/assumptions rather than hidden estimates:
 
-## Design principle carried through every step
+- **Forward rates**: derived via covered interest rate parity (CIRP), not observed from an actual forward market (none exists free for TRY).
+- **Options collar**: constructed synthetically from realized historical volatility, tested at three collar widths (k = 0.5 / 0.75 / 1.0) for sensitivity, since no free TRY options market data exists.
+- **Factoring rate**: proxied using TCMB's BRSA-regulated "financing companies" rate series, which bundles factoring, leasing, and consumer finance together — no factoring-only public series exists.
+- **LC commission**: a documented market-benchmark assumption (~6% annualized), sourced from published Turkish trade-finance advisory material, not a live rate.
 
-Raw pulled data (KAP line items, EVDS rates) is stored **as extracted**, with
-a source reference and retrieval timestamp. Every derived number (DIO, DSO,
-CCC, hedge P&L) is calculated in Python from that raw data, never hand-typed
-into the database. This is what makes the project traceable — you can always
-answer "where did this number come from" by following raw table -> calculation
-script -> derived table.
+## Limitations
+
+- Small sample size (currently 4 quarters) — patterns observed are directional, not statistically robust yet.
+- Working-capital cost uses quarter-end balances, not period averages (a stated simplification).
+- LC and SCF costs are intentionally *not* netted against each other, since they serve different treasury functions (risk mitigation vs. liquidity) and aren't directly comparable on the current model.
+
+## Disclaimer
+
+This is an independent educational project, not investment research or a comment on Mavi Giyim's actual treasury decisions. All figures are derived exclusively from Mavi's own public disclosures and TCMB's public data. This project is not affiliated with, endorsed by, or reviewed by Mavi Giyim Sanayi ve Ticaret A.Ş.
+
+## Author
+
+**Altay Marco Ocaklı** — B.Sc. Management, Bilkent University (expected June 2028)
+Open to feedback from anyone in treasury, FP&A, or trade finance.
+
+## License
+
+MIT — see [LICENSE](./LICENSE).
