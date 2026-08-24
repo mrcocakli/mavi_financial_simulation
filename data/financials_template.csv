@@ -1,0 +1,18 @@
+period_end,fiscal_year,fiscal_quarter,statement_type,line_item_en,line_item_tr,value_try,unit,source_url,filed_date
+2026-04-30,2026,1,BS,inventory,Stoklar,6831092,TRY_thousand,http://media.mavi.com/mavicompany/2026/Q1/1Q-26-Finansal-Rapor.pdf,2026-06-09
+2026-04-30,2026,1,BS,accounts_receivable,Ticari Alacaklar,3647316,TRY_thousand,http://media.mavi.com/mavicompany/2026/Q1/1Q-26-Finansal-Rapor.pdf,2026-06-09
+2026-04-30,2026,1,BS,accounts_payable,Ticari Borçlar,7083875,TRY_thousand,http://media.mavi.com/mavicompany/2026/Q1/1Q-26-Finansal-Rapor.pdf,2026-06-09
+2026-04-30,2026,1,IS,revenue,Hasılat,12701359,TRY_thousand,http://media.mavi.com/mavicompany/2026/Q1/1Q-26-Finansal-Rapor.pdf,2026-06-09
+2026-04-30,2026,1,IS,cogs,Satışların Maliyeti,5930400,TRY_thousand,http://media.mavi.com/mavicompany/2026/Q1/1Q-26-Finansal-Rapor.pdf,2026-06-09
+2026-01-31,2025,4,BS,inventory,Stoklar,5852882,TRY_thousand,https://www.mavicompany.com/i/assets/documents/2026/Q4/mavi-q4-financialreport.pdf,2026-03-17
+2026-01-31,2025,4,BS,accounts_receivable,Ticari Alacaklar,2844508,TRY_thousand,https://www.mavicompany.com/i/assets/documents/2026/Q4/mavi-q4-financialreport.pdf,2026-03-17
+2026-01-31,2025,4,BS,accounts_payable,Ticari Borçlar,5648811,TRY_thousand,https://www.mavicompany.com/i/assets/documents/2026/Q4/mavi-q4-financialreport.pdf,2026-03-17
+2026-01-31,2025,4,IS,revenue,Hasılat,47729211,TRY_thousand,https://www.mavicompany.com/i/assets/documents/2026/Q4/mavi-q4-financialreport.pdf,2026-03-17
+2026-01-31,2025,4,IS,cogs,Satışların Maliyeti,23391096,TRY_thousand,https://www.mavicompany.com/i/assets/documents/2026/Q4/mavi-q4-financialreport.pdf,2026-03-17
+2025-10-31,2025,3,BS,inventory,Stoklar,7329281,TRY_thousand,https://www.mavicompany.com/i/assets/documents/2025/Q3/Mavi-Giyim-Sanayi-ve-Tic-As-31-10-2025-spk.pdf,2025-12-10
+2025-10-31,2025,3,BS,accounts_receivable,Ticari Alacaklar,3507136,TRY_thousand,https://www.mavicompany.com/i/assets/documents/2025/Q3/Mavi-Giyim-Sanayi-ve-Tic-As-31-10-2025-spk.pdf,2025-12-10
+2025-10-31,2025,3,BS,accounts_payable,Ticari Borçlar,5825495,TRY_thousand,https://www.mavicompany.com/i/assets/documents/2025/Q3/Mavi-Giyim-Sanayi-ve-Tic-As-31-10-2025-spk.pdf,2025-12-10
+2025-10-31,2025,3,IS,revenue,Hasılat,12156234,TRY_thousand,https://www.mavicompany.com/i/assets/documents/2025/Q3/Mavi-Giyim-Sanayi-ve-Tic-As-31-10-2025-spk.pdf,2025-12-10
+2025-10-31,2025,3,IS,cogs,Satışların Maliyeti,5838068,TRY_thousand,https://www.mavicompany.com/i/assets/documents/2025/Q3/Mavi-Giyim-Sanayi-ve-Tic-As-31-10-2025-spk.pdf,2025-12-10
+2025-10-31,2025,3,IS,revenue_cumulative_9mo,Hasılat (Kümülatif 9 Ay),33580439,TRY_thousand,https://www.mavicompany.com/i/assets/documents/2025/Q3/Mavi-Giyim-Sanayi-ve-Tic-As-31-10-2025-spk.pdf,2025-12-10
+2025-10-31,2025,3,IS,cogs_cumulative_9mo,Satışların Maliyeti (Kümülatif 9 Ay),16268897,TRY_thousand,https://www.mavicompany.com/i/assets/documents/2025/Q3/Mavi-Giyim-Sanayi-ve-Tic-As-31-10-2025-spk.pdf,2025-12-10
