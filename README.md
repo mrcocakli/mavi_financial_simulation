@@ -19,14 +19,17 @@ This project simulates the day-to-day work of a treasury/FP&A/trade finance anal
 
 ## Project Phases
 
+All seven planned phases are complete.
+
 - [x] **1. Data infrastructure** — SQLite + Python ETL pipeline
 - [x] **2. Financial baseline** — cash conversion cycle (DIO/DSO/DPO/CCC) as a time series
 - [x] **3. FX exposure mapping** — validated against Mavi's own disclosed sensitivities
 - [x] **4. Hedging policy backtest** — forward (CIRP-derived) vs. options collar vs. unhedged
 - [x] **5. Financing structure comparison** — factoring vs. LC vs. supply chain finance
 - [x] **6. Monthly treasury report** — auto-generated in Markdown, HTML, and Excel
-- [x] **7. Pipeline automation** — full refresh via a single command
-- [ ] **8. Ongoing publishing** — recurring public write-ups
+- [x] **7. Pipeline automation** — full refresh via a single command, completed ahead of schedule
+
+**Ongoing:** the project is actively maintained on a monthly cadence — see [Getting Started](#getting-started) for the refresh workflow.## Project Phases
 
 ## Key Findings
 
