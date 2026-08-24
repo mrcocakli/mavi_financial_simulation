@@ -17,7 +17,6 @@ This project simulates the day-to-day work of a treasury/FP&A/trade finance anal
 | [TCMB EVDS](https://evds2.tcmb.gov.tr) | Daily FX rates, deposit rates, loan rates | Automated via Python (`tcmb` package) |
 | Market benchmarks | LC commission rate assumption | Documented, sourced, flagged as an assumption |
 
-## Project Phases
 
 All seven planned phases are complete.
 
@@ -38,7 +37,7 @@ All seven planned phases are complete.
 - Factoring receivables was found to be *more* expensive than plain commercial borrowing in Mavi's current rate environment — the opposite of the common assumption that factoring is cheap working capital.
 - An initial LC-vs-SCF cost comparison was identified as methodologically flawed (comparing a flat fee against a full-balance financing cost) and was deliberately not shipped as a "winner" — both are reported independently with a note explaining why.
 
-Full methodology, all assumptions, and complete results tables are in [`mavi_treasury_project_report.docx`](./mavi_treasury_project_report.docx) (or see `reports/` for the latest monthly output).
+Full methodology, all assumptions, and complete results tables are in [`mavi_treasury_project_report.docx`](./reports/mavi_treasury_project_report.docx) (or see `reports/` for the latest monthly output).
 
 ## Project Structure
 
