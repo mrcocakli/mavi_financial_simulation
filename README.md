@@ -17,6 +17,7 @@ This project simulates the day-to-day work of a treasury/FP&A/trade finance anal
 | [TCMB EVDS](https://evds2.tcmb.gov.tr) | Daily FX rates, deposit rates, loan rates | Automated via Python (`tcmb` package) |
 | Market benchmarks | LC commission rate assumption | Documented, sourced, flagged as an assumption |
 
+## Project Phases
 
 All seven planned phases are complete.
 
@@ -28,7 +29,7 @@ All seven planned phases are complete.
 - [x] **6. Monthly treasury report** — auto-generated in Markdown, HTML, and Excel
 - [x] **7. Pipeline automation** — full refresh via a single command, completed ahead of schedule
 
-**Ongoing:** the project is actively maintained on a monthly cadence — see [Getting Started](#getting-started) for the refresh workflow.## Project Phases
+**Ongoing:** the project is actively maintained on a monthly cadence — see [Getting Started](#getting-started) for the refresh workflow.
 
 ## Key Findings
 
