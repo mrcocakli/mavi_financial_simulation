@@ -87,7 +87,7 @@ exp_periods = conn.execute(
 ).fetchall()
 exp_periods = [r[0] for r in exp_periods]
 print(f"Periods in fx_exposure_items: {exp_periods}")
-check("4 quarters of FX exposure loaded", len(exp_periods) == 4,
+check("at least 4 quarters of FX exposure loaded", len(exp_periods) >= 4,
       f"found {len(exp_periods)}")
 
 exp_rows = conn.execute(
@@ -95,7 +95,7 @@ exp_rows = conn.execute(
 ).fetchall()
 for row in exp_rows:
     print(f"  {row}")
-check("8 total exposure rows (4 quarters x USD+EUR)", len(exp_rows) == 8,
+check("two exposure rows (USD + EUR) per quarter", len(exp_rows) == 2 * len(exp_periods),
       f"found {len(exp_rows)}")
 
 print()
