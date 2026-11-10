@@ -1,5 +1,5 @@
 # Mavi Giyim (BIST: MAVI) — Treasury Report
-*Generated 2026-11-10 22:38 | Data through 2026-04-30*
+*Generated 2026-11-10 20:02 | Data through 2026-04-30*
 
 ## Headline — Latest Quarter
 
