@@ -1,0 +1,70 @@
+name: Monthly treasury refresh
+
+# Refreshes EVDS market data, re-runs every calculation, rebuilds the monthly
+# report and the treasury simulator, then commits the result. The dated commits
+# are the project's track record.
+#
+# One-time setup: Settings > Secrets and variables > Actions > New repository
+# secret, name EVDS_API_KEY, value = your TCMB EVDS key.
+#
+# New quarterly filings are still entered by hand in data/*.csv (KAP publishes
+# PDFs, not an API); this job picks them up on its next run.
+
+on:
+  schedule:
+    - cron: "17 6 3 * *"      # 3rd of each month, 09:17 Istanbul time
+  workflow_dispatch:          # "Run workflow" button for an on-demand refresh
+
+permissions:
+  contents: write
+
+concurrency:
+  group: monthly-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Python packages
+        run: pip install -r requirements.txt
+
+      - name: Install LibreOffice (recalculates Excel formulas)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends libreoffice-calc
+
+      - name: Check the EVDS key is configured
+        env:
+          EVDS_API_KEY: ${{ secrets.EVDS_API_KEY }}
+        run: |
+          if [ -z "$EVDS_API_KEY" ]; then
+            echo "::error::Repository secret EVDS_API_KEY is not set (Settings > Secrets and variables > Actions)."
+            exit 1
+          fi
+
+      - name: Run the pipeline
+        env:
+          EVDS_API_KEY: ${{ secrets.EVDS_API_KEY }}
+        run: python etl/run_pipeline.py
+
+      - name: Reconcile the Excel simulator against the Python engine
+        run: python verify_simulator.py
+
+      - name: Commit refreshed data and reports
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add db/mavi_treasury.db reports docs
+          if git diff --cached --quiet; then
+            echo "Nothing changed."
+          else
+            git commit -m "Monthly refresh $(date -u +%Y-%m-%d)"
+            git push
+          fi

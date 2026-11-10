@@ -14,7 +14,7 @@ This project simulates the day-to-day work of a treasury/FP&A/trade finance anal
 |---|---|---|
 | [KAP](https://www.kap.org.tr) | Quarterly/annual consolidated financials | Manual extraction from filed PDFs, source-traced |
 | Mavi Investor Relations | Same filings; FX risk disclosure notes | Manual extraction, direct PDF links |
-| [TCMB EVDS](https://evds2.tcmb.gov.tr) | Daily FX rates, deposit rates, loan rates | Automated via Python (`tcmb` package) |
+| [TCMB EVDS](https://evds3.tcmb.gov.tr) | Daily FX rates, deposit rates, loan rates | Automated via Python (`tcmb` package) |
 | Market benchmarks | LC commission rate assumption | Documented, sourced, flagged as an assumption |
 
 ## Project Phases
@@ -39,6 +39,28 @@ All seven planned phases are complete.
 - An initial LC-vs-SCF cost comparison was identified as methodologically flawed (comparing a flat fee against a full-balance financing cost) and was deliberately not shipped as a "winner" — both are reported independently with a note explaining why.
 
 Full methodology, all assumptions, and complete results tables are in [`mavi_treasury_project_report.docx`](./reports/mavi_treasury_project_report.docx) (or see `reports/` for the latest monthly output).
+
+## Treasury Simulator
+
+A live scenario model on top of the pipeline: FX shocks, payment-term changes, an inventory build, a forward hedge ratio and a loan-rate shock, measured against any reported quarter in the database.
+
+| Output | File | How it is built |
+|---|---|---|
+| Excel model, every figure a traceable formula | `reports/mavi_treasury_simulator.xlsx` | `python etl/build_simulator_xlsx.py` |
+| Standalone web page with sliders (no server) | `reports/treasury_simulator.html` | `python etl/build_simulator_html.py` |
+| Streamlit page | `dashboard/simulator_app.py` | `streamlit run dashboard/simulator_app.py` |
+
+All three implement the formulas in `etl/simulator_engine.py`. `python verify_simulator.py` reconciles the recalculated workbook against the Python engine line by line. Both builders run as part of `etl/run_pipeline.py`, so the simulator rebases itself whenever a new quarter is loaded.
+
+Disclosed limits: the FX-linked share of COGS is an illustrative assumption (not a Mavi disclosure); forwards are a covered-interest-parity proxy; balances are quarter-end points; inventory and payables reprice immediately.
+
+## Automated monthly refresh
+
+`.github/workflows/monthly-refresh.yml` runs the whole pipeline on GitHub Actions on the 3rd of every month (and on demand from the Actions tab): it pulls the latest EVDS data, recalculates everything, rebuilds the monthly report and the simulator, recalculates the Excel files with LibreOffice, reconciles the simulator, and commits the result. It needs one repository secret, `EVDS_API_KEY`.
+
+The database (`db/mavi_treasury.db`) and the Excel outputs are tracked in git so each run starts from the previous one and every refresh is a dated commit. The live simulator page is written to `docs/index.html`; enable GitHub Pages (Settings > Pages > Deploy from branch > `main` / `docs`) to serve it.
+
+Quarterly financials and the FX exposure note are still entered by hand in `data/*.csv` when Mavi files on KAP; the next run picks them up.
 
 ## Project Structure
 
@@ -74,9 +96,9 @@ mavi-treasury/
 ```bash
 git clone https://github.com/mrcocakli/mavi_financial_simulation.git
 cd mavi_financial_simulation
-pip install -r requirements.txt --break-system-packages
+pip install -r requirements.txt --break-system-packages   # add requirements-dashboard.txt for the Streamlit page
 
-# Get a free EVDS API key: evds2.tcmb.gov.tr → register → Profilim → API Key
+# Get a free EVDS API key: evds3.tcmb.gov.tr → register → Profilim → API Key
 cp .env.example .env
 # then edit .env and paste your key
 

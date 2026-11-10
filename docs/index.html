@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mavi Treasury Simulator</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f5f5f7; --surface:#ffffff; --ink:#1d1d1f; --ink2:#55555a; --ink3:#86868b;
+  --line:#e3e3e8; --accent:#2a78d6; --base:#a9a9b2; --s2:#eb6834; --s3:#1baf7a;
+  --neg:#c9342f; --track:#dcdce2;
+}
+@media (prefers-color-scheme:dark){:root{
+  color-scheme:dark;
+  --bg:#000000; --surface:#1c1c1e; --ink:#f5f5f7; --ink2:#c3c3c8; --ink3:#8e8e93;
+  --line:#2f2f33; --accent:#3987e5; --base:#6e6e76; --s2:#d95926; --s3:#199e70;
+  --neg:#e66767; --track:#3a3a3e;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:40px 24px 64px}
+header h1{font-size:34px;line-height:1.1;letter-spacing:-.02em;font-weight:700;margin:0 0 8px}
+header p{margin:0;color:var(--ink2);max-width:720px;font-size:17px}
+.meta{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;margin:24px 0 16px;color:var(--ink2);font-size:13px}
+select{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);
+  border-radius:10px;padding:8px 12px;min-height:44px}
+.presets{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.presets button{font:inherit;font-size:14px;font-weight:500;min-height:44px;padding:0 16px;border-radius:22px;
+  border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;
+  transition:background .18s ease,color .18s ease,border-color .18s ease}
+.presets button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.presets button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.grid{display:grid;grid-template-columns:340px 1fr;gap:24px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border-radius:18px;padding:24px}
+.controls{position:sticky;top:16px}
+@media (max-width:900px){.controls{position:static}}
+.controls h2,.card h2{font-size:13px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.04em;margin:0 0 16px}
+.controls h2:not(:first-child){margin-top:28px}
+.ctl{margin-bottom:18px}
+.ctl label{display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:500}
+.ctl output{font-variant-numeric:tabular-nums;color:var(--accent);font-weight:600}
+.ctl small{display:block;color:var(--ink3);font-size:12px;margin-top:2px}
+input[type=range]{width:100%;height:28px;margin:4px 0 0;accent-color:var(--accent)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+@media (max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--surface);border-radius:18px;padding:18px 20px}
+.kpi .k{font-size:13px;color:var(--ink2)}
+.kpi .v{font-size:28px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin-top:4px;white-space:nowrap}
+.kpi .d{font-size:13px;color:var(--ink3);margin-top:2px;font-variant-numeric:tabular-nums}
+.neg{color:var(--neg)}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media (max-width:1040px){.charts{grid-template-columns:1fr}}
+.span2{grid-column:1/-1}
+.card h3{font-size:19px;font-weight:600;letter-spacing:-.01em;margin:0 0 4px}
+.card .sub{color:var(--ink2);font-size:13px;margin:0 0 12px}
+svg{display:block;width:100%;height:auto;overflow:visible}
+svg text{fill:var(--ink2);font-size:12px;font-variant-numeric:tabular-nums}
+svg .val{fill:var(--ink);font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--ink2);margin-top:8px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.legend i.ln{height:3px;vertical-align:3px;border-radius:2px}
+#tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12px;padding:6px 10px;
+  border-radius:8px;opacity:0;transition:opacity .12s ease;z-index:10;white-space:nowrap;font-variant-numeric:tabular-nums}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:8px 6px;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{font-size:12px;color:var(--ink3);font-weight:600}
+details{margin-top:24px}
+summary{cursor:pointer;font-weight:600;min-height:44px;display:flex;align-items:center}
+.notes{color:var(--ink2);font-size:14px}
+.notes li{margin-bottom:6px}
+footer{margin-top:32px;color:var(--ink3);font-size:12px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Mavi Treasury Simulator</h1>
+  <p>What happens to Mavi Giyim's cash and quarterly P&amp;L if the lira moves, payment terms shift, or inventory builds. Starts from a reported quarter; every lever recalculates the model live.</p>
+</header>
+<div class="meta">
+  <label>Baseline quarter&nbsp; <select id="quarter" aria-label="Baseline quarter"></select></label>
+  <span id="asof"></span>
+</div>
+<div class="presets" id="presets" role="group" aria-label="Preset scenarios"></div>
+
+<div class="grid">
+  <aside class="card controls" id="controls" aria-label="Scenario levers"></aside>
+  <main>
+    <div class="kpis" id="kpis"></div>
+    <div class="charts">
+      <section class="card">
+        <h3>Trade working capital</h3>
+        <p class="sub">Baseline quarter against the scenario, TRY million</p>
+        <div id="c-wc"></div>
+        <div class="legend"><span><i style="background:var(--base)"></i>Baseline</span><span><i style="background:var(--accent)"></i>Scenario</span></div>
+      </section>
+      <section class="card">
+        <h3>Quarter P&amp;L impact</h3>
+        <p class="sub">What drives the change against baseline, TRY million</p>
+        <div id="c-pl"></div>
+      </section>
+      <section class="card span2">
+        <h3>FX P&amp;L on the net monetary position, by size of lira move</h3>
+        <p class="sub">Same move applied to USD/TRY and EUR/TRY over the hedge horizon, TRY million. The dot is the current scenario's USD/TRY shock.</p>
+        <div id="c-fx"></div>
+        <div class="legend"><span><i class="ln" style="background:var(--s2)"></i>Unhedged</span><span><i class="ln" style="background:var(--accent)"></i>At chosen hedge ratio</span><span><i class="ln" style="background:var(--s3)"></i>Fully hedged (forward)</span></div>
+      </section>
+      <section class="card span2">
+        <h3>The numbers</h3>
+        <p class="sub">TRY thousand, one fiscal quarter</p>
+        <div id="tbl"></div>
+        <details>
+          <summary>Method and limits</summary>
+          <ul class="notes">
+            <li>Working capital: scenario balances are rebuilt from days (DIO, DSO, DPO) on scenario revenue and COGS. Cash impact is minus the change in inventory + receivables − payables.</li>
+            <li>FX: the disclosed net USD and EUR monetary positions are revalued at spot × (1 + shock). The hedged share is locked at a forward derived from covered interest parity on TCMB deposit rates — a proxy, since free TRY forward quotes do not exist.</li>
+            <li>Funding cost: net trade working capital × TRY commercial loan rate × days / 365.</li>
+            <li>The FX-linked share of COGS is an illustrative assumption; Mavi does not disclose it. Set it to 0% to switch that channel off.</li>
+            <li>Balances are quarter-end points, not averages, and Mavi's business is seasonal. Inventory and payables are assumed to reprice immediately.</li>
+            <li>A simulation on public filings (KAP) and TCMB EVDS data. Not a forecast, not company guidance, not investment advice.</li>
+          </ul>
+        </details>
+      </section>
+    </div>
+  </main>
+</div>
+<footer id="foot"></footer>
+</div>
+<div id="tip" role="status"></div>
+
+<script id="data">
+const DATA = {"baselines": [{"period_end": "2025-10-31", "label": "FY2025 Q3 (2025-10-31)", "revenue": 12156234.0, "cogs": 5838068.0, "inventory": 7329281.0, "ar": 3507136.0, "ap": 5825495.0, "days": 92, "loan_rate": 0.4836, "factoring_rate": 0.5917, "usd_native": 15784.0, "eur_native": -1701.0, "usd_spot": 41.9755, "eur_spot": 48.7458, "try_rate": 0.4962, "usd_rate": 0.0202, "eur_rate": 0.0116, "source_url": "https://www.mavicompany.com/i/assets/documents/2025/Q3/Mavi-Giyim-Sanayi-ve-Tic-As-31-10-2025-spk.pdf"}, {"period_end": "2026-01-31", "label": "FY2025 Q4 (2026-01-31)", "revenue": 14148772.0, "cogs": 7122199.0, "inventory": 5852882.0, "ar": 2844508.0, "ap": 5648811.0, "days": 92, "loan_rate": 0.46, "factoring_rate": 0.5494, "usd_native": -2508.0, "eur_native": -2478.0, "usd_spot": 43.4224, "eur_spot": 51.9426, "try_rate": 0.45630000000000004, "usd_rate": 0.0181, "eur_rate": 0.0097, "source_url": "https://www.mavicompany.com/i/assets/documents/2026/Q4/mavi-q4-financialreport.pdf"}, {"period_end": "2026-04-30", "label": "FY2026 Q1 (2026-04-30)", "revenue": 12701359.0, "cogs": 5930400.0, "inventory": 6831092.0, "ar": 3647316.0, "ap": 7083875.0, "days": 89, "loan_rate": 0.46270000000000006, "factoring_rate": 0.5393, "usd_native": 18279.0, "eur_native": -1003.0, "usd_spot": 45.0661, "eur_spot": 52.7382, "try_rate": 0.4891, "usd_rate": 0.0209, "eur_rate": 0.0116, "source_url": "http://media.mavi.com/mavicompany/2026/Q1/1Q-26-Finansal-Rapor.pdf"}], "presets": [{"name": "Base", "scenario": {"growth": 0.0, "usd_shock": 0.0, "eur_shock": 0.0, "d_dso": 0.0, "d_dpo": 0.0, "inv_build": 0.0, "hedge_ratio": 0.0, "rate_bps": 0.0}}, {"name": "TRY depreciation", "scenario": {"growth": 0.0, "usd_shock": 0.2, "eur_shock": 0.2, "d_dso": 0.0, "d_dpo": 0.0, "inv_build": 0.0, "hedge_ratio": 0.0, "rate_bps": 0.0}}, {"name": "Payment terms squeeze", "scenario": {"growth": 0.0, "usd_shock": 0.0, "eur_shock": 0.0, "d_dso": 15.0, "d_dpo": -20.0, "inv_build": 0.0, "hedge_ratio": 0.0, "rate_bps": 0.0}}, {"name": "Inventory build", "scenario": {"growth": 0.0, "usd_shock": 0.0, "eur_shock": 0.0, "d_dso": 0.0, "d_dpo": 0.0, "inv_build": 0.25, "hedge_ratio": 0.0, "rate_bps": 0.0}}, {"name": "Combined stress", "scenario": {"growth": 0.0, "usd_shock": 0.2, "eur_shock": 0.2, "d_dso": 10.0, "d_dpo": -15.0, "inv_build": 0.2, "hedge_ratio": 0.5, "rate_bps": 500.0}}], "assumptions": {"fx_cogs_share": 0.25, "horizon_days": 90}, "asof": "2026-08-24", "built": "2026-11-10"};
+</script>
+<script id="engine">
+// Same formulas as etl/simulator_engine.py (reconciled by verify_simulator_html.js).
+function runScenario(b, s, a) {
+  const days = b.days, n = a.horizon_days;
+  const dio0 = b.inventory / b.cogs * days, dso0 = b.ar / b.revenue * days, dpo0 = b.ap / b.cogs * days;
+  const nwc0 = b.inventory + b.ar - b.ap, gp0 = b.revenue - b.cogs;
+  const fund0 = nwc0 * b.loan_rate * days / 365;
+  const revenue = b.revenue * (1 + s.growth);
+  const cogs = b.cogs * (1 + s.growth) * (1 + a.fx_cogs_share * s.usd_shock);
+  const dio = dio0 * (1 + s.inv_build), dso = dso0 + s.d_dso, dpo = dpo0 + s.d_dpo;
+  const inventory = cogs / days * dio, ar = revenue / days * dso, ap = cogs / days * dpo;
+  const nwc = inventory + ar - ap;
+  const rate = b.loan_rate + s.rate_bps / 10000;
+  const fund = nwc * rate * days / 365;
+  const fx = {};
+  for (const c of ["usd", "eur"]) {
+    const s0 = b[c + "_spot"], s1 = s0 * (1 + s[c + "_shock"]);
+    const fwd = s0 * (1 + b.try_rate * n / 365) / (1 + b[c + "_rate"] * n / 365);
+    const nat = b[c + "_native"], unhedged = nat * (s1 - s0);
+    fx[c] = {s1, fwd, unhedged, pnl: (1 - s.hedge_ratio) * unhedged + s.hedge_ratio * nat * (fwd - s0)};
+  }
+  const gp = revenue - cogs, fx_pnl = fx.usd.pnl + fx.eur.pnl;
+  return {revenue, cogs, gross_profit: gp, dio, dso, dpo, ccc: dio + dso - dpo, inventory, ar, ap, nwc,
+    d_nwc: nwc - nwc0, cash_impact: -(nwc - nwc0), loan_rate: rate, funding_cost: fund,
+    d_funding_cost: fund - fund0, usd_s1: fx.usd.s1, eur_s1: fx.eur.s1, usd_fwd: fx.usd.fwd, eur_fwd: fx.eur.fwd,
+    fx_unhedged: fx.usd.unhedged + fx.eur.unhedged, usd_pnl: fx.usd.pnl, eur_pnl: fx.eur.pnl, fx_pnl,
+    d_gross_profit: gp - gp0, pnl_impact: (gp - gp0) + fx_pnl - (fund - fund0),
+    base: {dio: dio0, dso: dso0, dpo: dpo0, ccc: dio0 + dso0 - dpo0, nwc: nwc0, funding_cost: fund0,
+      gross_profit: gp0, inventory: b.inventory, ar: b.ar, ap: b.ap}};
+}
+</script>
+<script>
+const $ = id => document.getElementById(id);
+const LEVERS = [
+  {k:"usd_shock", label:"USD/TRY shock", min:-10, max:50, step:1, unit:"%", scale:100, hint:"+ means a weaker lira", group:"FX"},
+  {k:"eur_shock", label:"EUR/TRY shock", min:-10, max:50, step:1, unit:"%", scale:100, group:"FX"},
+  {k:"hedge_ratio", label:"Hedge ratio (forward)", min:0, max:100, step:5, unit:"%", scale:100, hint:"share of each net position locked forward", group:"FX"},
+  {k:"d_dso", label:"Receivable days (DSO)", min:-15, max:30, step:1, unit:" d", scale:1, hint:"+ means customers pay later", group:"Payment terms"},
+  {k:"d_dpo", label:"Payable days (DPO)", min:-30, max:30, step:1, unit:" d", scale:1, hint:"− means suppliers paid sooner", group:"Payment terms"},
+  {k:"inv_build", label:"Inventory build", min:-20, max:50, step:1, unit:"%", scale:100, hint:"extra stock days vs baseline", group:"Inventory and volume"},
+  {k:"growth", label:"Sales volume growth", min:-20, max:30, step:1, unit:"%", scale:100, group:"Inventory and volume"},
+  {k:"rate_bps", label:"Loan rate shock", min:-1000, max:1000, step:50, unit:" bps", scale:1, group:"Funding"},
+];
+const ASSUME = [
+  {k:"fx_cogs_share", label:"FX-linked share of COGS", min:0, max:60, step:5, unit:"%", scale:100, hint:"illustrative assumption, not disclosed"},
+  {k:"horizon_days", label:"Hedge horizon", min:30, max:180, step:30, unit:" d", scale:1},
+];
+let S = {...DATA.presets[0].scenario}, A = {...DATA.assumptions}, Q = DATA.baselines.length - 1;
+
+const sign = v => v > 0 ? "+" : v < 0 ? "−" : "";
+function money(k, withSign) {            // k = TRY thousand
+  const a = Math.abs(k), sg = withSign ? sign(k) : (k < 0 ? "−" : "");
+  if (a >= 1e6) return sg + "₺" + (a / 1e6).toFixed(2) + " bn";
+  if (a >= 1e3) return sg + "₺" + (a / 1e3).toFixed(a >= 1e5 ? 0 : 1) + " m";
+  return sg + "₺" + a.toFixed(0) + " k";
+}
+const mn = k => (k / 1e3);
+const fmtLever = (L, v) => (v > 0 && L.min < 0 ? "+" : v < 0 ? "−" : "") + Math.abs(Math.round(v * L.scale)) + L.unit;
+const num = (v, d = 0) => (v < 0 ? "(" : "") + Math.abs(v).toLocaleString("en-US", {minimumFractionDigits: d, maximumFractionDigits: d}) + (v < 0 ? ")" : "");
+
+function buildControls() {
+  let html = "", g = "";
+  for (const L of LEVERS) {
+    if (L.group !== g) { g = L.group; html += `<h2>${g}</h2>`; }
+    html += ctl(L, "s");
+  }
+  html += "<h2>Model assumptions</h2>" + ASSUME.map(L => ctl(L, "a")).join("");
+  $("controls").innerHTML = html;
+  $("controls").addEventListener("input", e => {
+    const t = e.target, L = [...LEVERS, ...ASSUME].find(x => x.k === t.dataset.k);
+    (t.dataset.t === "s" ? S : A)[L.k] = +t.value / L.scale;
+    render();
+  });
+}
+const ctl = (L, t) => `<div class="ctl"><label for="i-${L.k}">${L.label}<output id="o-${L.k}"></output></label>
+  <input type="range" id="i-${L.k}" data-k="${L.k}" data-t="${t}" min="${L.min}" max="${L.max}" step="${L.step}">
+  ${L.hint ? `<small>${L.hint}</small>` : ""}</div>`;
+
+function syncControls() {
+  for (const L of LEVERS) { $("i-" + L.k).value = S[L.k] * L.scale; $("o-" + L.k).textContent = fmtLever(L, S[L.k]); }
+  for (const L of ASSUME) { $("i-" + L.k).value = A[L.k] * L.scale; $("o-" + L.k).textContent = fmtLever(L, A[L.k]); }
+  const keys = LEVERS.map(L => L.k);
+  [...$("presets").children].forEach((btn, i) => {
+    const p = DATA.presets[i].scenario;
+    btn.setAttribute("aria-pressed", keys.every(k => Math.abs(p[k] - S[k]) < 1e-9));
+  });
+}
+
+// ---------- charts (inline SVG) ----------
+const tip = $("tip");
+function hover(root) {
+  root.querySelectorAll("[data-tip]").forEach(el => {
+    el.addEventListener("pointermove", e => { tip.textContent = el.dataset.tip; tip.style.opacity = 1;
+      tip.style.left = Math.min(e.clientX + 12, innerWidth - tip.offsetWidth - 8) + "px"; tip.style.top = (e.clientY - 34) + "px"; });
+    el.addEventListener("pointerleave", () => tip.style.opacity = 0);
+  });
+}
+function axis(min, max, n = 4) {      // nice ticks that always include zero
+  min = Math.min(0, min); max = Math.max(0, max); if (max === min) max = 1;
+  const raw = (max - min) / n, p = Math.pow(10, Math.floor(Math.log10(raw))), m = raw / p;
+  const step = (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * p;
+  const lo = Math.floor(min / step) * step, hi = Math.ceil(max / step) * step, ticks = [];
+  for (let v = lo; v <= hi + step / 2; v += step) ticks.push(Math.abs(v) < step / 1e6 ? 0 : v);
+  return {lo, hi, ticks};
+}
+function niceMax(v) { const p = Math.pow(10, Math.floor(Math.log10(v || 1))); const m = v / p; return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * p; }
+function rbar(x, y, w, h, up) {           // bar with 4px rounded data-end
+  const r = Math.min(4, w / 2, h);
+  if (h <= 0) return "";
+  return up ? `M${x},${y + h}V${y + r}q0,-${r} ${r},-${r}h${w - 2 * r}q${r},0 ${r},${r}V${y + h}Z`
+            : `M${x},${y}V${y + h - r}q0,${r} ${r},${r}h${w - 2 * r}q${r},0 ${r},-${r}V${y}Z`;
+}
+function chartWC(r) {
+  const cats = [["Inventory", r.base.inventory, r.inventory], ["Receivables", r.base.ar, r.ar],
+                ["Payables", r.base.ap, r.ap], ["Net WC", r.base.nwc, r.nwc]];
+  const W = 340, H = 240, L = 44, B = 28, T = 18, ph = H - B - T;
+  const vals = cats.flatMap(c => [mn(c[1]), mn(c[2])]);
+  const {lo, hi, ticks} = axis(Math.min(...vals), Math.max(...vals));
+  const y = v => T + ph * (hi - v) / (hi - lo);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Trade working capital, baseline against scenario">`;
+  for (const v of ticks) {
+    s += `<line x1="${L}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${num(v)}</text>`; }
+  const gw = (W - L) / cats.length, bw = 24;
+  cats.forEach((c, i) => {
+    const cx = L + gw * i + gw / 2;
+    [[c[1], "var(--base)", -bw - 1, "Baseline"], [c[2], "var(--accent)", 1, "Scenario"]].forEach(([v, col, dx, nm]) => {
+      const m = mn(v), y0 = y(0), y1 = y(m);
+      s += `<path d="${rbar(cx + dx, Math.min(y0, y1), bw, Math.abs(y1 - y0), m >= 0)}" fill="${col}" data-tip="${c[0]} · ${nm}: ₺${num(m)} m"/>`;
+    });
+    s += `<text class="val" x="${cx + 1 + bw / 2}" y="${Math.min(y(mn(c[2])), y(mn(c[1])), y(0)) - 5}" text-anchor="middle">${num(mn(c[2]))}</text>`;
+    s += `<text x="${cx}" y="${H - 8}" text-anchor="middle">${c[0]}</text>`;
+  });
+  s += `<line x1="${L}" x2="${W}" y1="${y(0)}" y2="${y(0)}" stroke="var(--ink3)"/></svg>`;
+  $("c-wc").innerHTML = s; hover($("c-wc"));
+}
+function chartPL(r) {
+  const rows = [["Gross profit", r.d_gross_profit], ["FX on net position", r.fx_pnl],
+                ["Funding cost", -r.d_funding_cost], ["Total P&L impact", r.pnl_impact]];
+  const W = 340, rowH = 46, T = 8, H = T + rows.length * rowH + 22, L = 150, R = 44;
+  const m = niceMax(Math.max(...rows.map(x => Math.abs(mn(x[1]))), 1));
+  const x = v => L + (W - L - R) * (v + m) / (2 * m), x0 = x(0);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Drivers of the quarter P&L impact">`;
+  rows.forEach((c, i) => {
+    const v = mn(c[1]), yy = T + i * rowH + 9, h = 24, total = i === rows.length - 1;
+    const xa = Math.min(x0, x(v)), w = Math.abs(x(v) - x0), r4 = Math.min(4, w);
+    if (total) s += `<line x1="0" x2="${W}" y1="${yy - 9}" y2="${yy - 9}" stroke="var(--line)"/>`;
+    const d = v >= 0 ? `M${x0},${yy}h${w - r4}q${r4},0 ${r4},${r4}v${h - 2 * r4}q0,${r4} -${r4},${r4}h-${w - r4}Z`
+                     : `M${x0},${yy}h-${w - r4}q-${r4},0 -${r4},${r4}v${h - 2 * r4}q0,${r4} ${r4},${r4}h${w - r4}Z`;
+    if (w > 0.5) s += `<path d="${d}" fill="${total ? "var(--ink)" : "var(--accent)"}" data-tip="${c[0]}: ${sign(v)}₺${num(Math.abs(v), 1)} m"/>`;
+    s += `<text x="0" y="${yy + 16}" style="${total ? "font-weight:600;fill:var(--ink)" : ""}">${c[0]}</text>`;
+    s += `<text class="val" x="${v >= 0 ? x(v) + 6 : xa - 6}" y="${yy + 16}" text-anchor="${v >= 0 ? "start" : "end"}">${sign(v)}${num(Math.abs(v))}</text>`;
+  });
+  s += `<line x1="${x0}" x2="${x0}" y1="${T}" y2="${H - 22}" stroke="var(--ink3)"/>`;
+  s += `<text x="${x0}" y="${H - 4}" text-anchor="middle">0</text></svg>`;
+  $("c-pl").innerHTML = s; hover($("c-pl"));
+}
+function chartFX(b) {
+  const W = 700, H = 280, L = 48, R = 104, B = 30, T = 14, pw = W - L - R, ph = H - B - T;
+  const xs = []; for (let p = -10; p <= 50; p += 2) xs.push(p);
+  const at = (p, h) => mn(runScenario(b, {...S, usd_shock: p / 100, eur_shock: p / 100, hedge_ratio: h}, A).fx_pnl);
+  const series = [["Unhedged", 0, "var(--s2)"], [Math.round(S.hedge_ratio * 100) + "% hedged", S.hedge_ratio, "var(--accent)"], ["Fully hedged", 1, "var(--s3)"]];
+  const all = series.flatMap(sr => xs.map(p => at(p, sr[1])));
+  const {lo, hi, ticks} = axis(Math.min(...all), Math.max(...all));
+  const x = p => L + pw * (p + 10) / 60, y = v => T + ph * (hi - v) / (hi - lo);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="FX P&L by size of lira move for three hedge ratios">`;
+  for (const v of ticks) {
+    s += `<line x1="${L}" x2="${L + pw}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${num(v)}</text>`; }
+  for (let p = -10; p <= 50; p += 10) s += `<text x="${x(p)}" y="${H - 8}" text-anchor="middle">${p > 0 ? "+" : ""}${p}%</text>`;
+  if (lo < 0) s += `<line x1="${L}" x2="${L + pw}" y1="${y(0)}" y2="${y(0)}" stroke="var(--ink3)"/>`;
+  const ends = series.map(sr => ({lab: sr[0], col: sr[2], yy: y(at(50, sr[1]))})).sort((a, c) => a.yy - c.yy);
+  for (let i = 1; i < ends.length; i++) if (ends[i].yy - ends[i - 1].yy < 15) ends[i].yy = ends[i - 1].yy + 15;
+  series.forEach(sr => { s += `<path d="M${xs.map(p => x(p) + "," + y(at(p, sr[1]))).join("L")}" fill="none" stroke="${sr[2]}" stroke-width="2" stroke-linejoin="round"/>`; });
+  ends.forEach(e => { s += `<text x="${L + pw + 8}" y="${e.yy + 4}" style="fill:var(--ink)">${e.lab}</text>`; });
+  const cp = Math.max(-10, Math.min(50, S.usd_shock * 100)), cv = at(cp, S.hedge_ratio);
+  s += `<circle cx="${x(cp)}" cy="${y(cv)}" r="6" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>`;
+  xs.forEach(p => { s += `<rect x="${x(p) - pw / 60}" y="${T}" width="${pw / 30}" height="${ph}" fill="transparent" data-tip="Lira move ${p > 0 ? "+" : ""}${p}% · unhedged ₺${num(at(p, 0))} m · chosen ₺${num(at(p, S.hedge_ratio))} m · fully hedged ₺${num(at(p, 1))} m"/>`; });
+  s += "</svg>";
+  $("c-fx").innerHTML = s; hover($("c-fx"));
+}
+
+function render() {
+  const b = DATA.baselines[Q], r = runScenario(b, S, A);
+  syncControls();
+  const cls = v => v < -0.5 ? "neg" : "";
+  $("kpis").innerHTML = [
+    ["Cash impact", `<span class="${cls(r.cash_impact)}">${money(r.cash_impact, true)}</span>`, "change in working capital"],
+    ["Quarter P&L impact", `<span class="${cls(r.pnl_impact)}">${money(r.pnl_impact, true)}</span>`, "margin + FX − funding"],
+    ["Cash conversion cycle", r.ccc.toFixed(1) + " days", `baseline ${r.base.ccc.toFixed(1)} · ${sign(r.ccc - r.base.ccc)}${Math.abs(r.ccc - r.base.ccc).toFixed(1)}`],
+    ["FX P&L", `<span class="${cls(r.fx_pnl)}">${money(r.fx_pnl, true)}</span>`, `unhedged ${money(r.fx_unhedged, true)}`],
+  ].map(k => `<div class="kpi"><div class="k">${k[0]}</div><div class="v">${k[1]}</div><div class="d">${k[2]}</div></div>`).join("");
+  chartWC(r); chartPL(r); chartFX(b);
+  const rows = [["DIO (days)", r.base.dio, r.dio, 1], ["DSO (days)", r.base.dso, r.dso, 1], ["DPO (days)", r.base.dpo, r.dpo, 1],
+    ["Cash conversion cycle (days)", r.base.ccc, r.ccc, 1], ["Revenue", b.revenue, r.revenue, 0], ["COGS", b.cogs, r.cogs, 0],
+    ["Gross profit", r.base.gross_profit, r.gross_profit, 0], ["Inventory", b.inventory, r.inventory, 0],
+    ["Trade receivables", b.ar, r.ar, 0], ["Trade payables", b.ap, r.ap, 0], ["Net trade working capital", r.base.nwc, r.nwc, 0],
+    ["Funding cost for the quarter", r.base.funding_cost, r.funding_cost, 0], ["FX P&L on monetary position", 0, r.fx_pnl, 0]];
+  $("tbl").innerHTML = `<table><thead><tr><th>Line</th><th>Baseline</th><th>Scenario</th><th>Change</th></tr></thead><tbody>` +
+    rows.map(x => `<tr><td>${x[0]}</td><td>${num(x[1], x[3])}</td><td>${num(x[2], x[3])}</td><td>${num(x[2] - x[1], x[3])}</td></tr>`).join("") +
+    `<tr><td>USD/TRY: spot → scenario · forward</td><td>${b.usd_spot.toFixed(4)}</td><td>${r.usd_s1.toFixed(4)}</td><td>${r.usd_fwd.toFixed(4)}</td></tr>` +
+    `<tr><td>EUR/TRY: spot → scenario · forward</td><td>${b.eur_spot.toFixed(4)}</td><td>${r.eur_s1.toFixed(4)}</td><td>${r.eur_fwd.toFixed(4)}</td></tr></tbody></table>`;
+}
+
+function init() {
+  $("quarter").innerHTML = DATA.baselines.map((b, i) => `<option value="${i}">${b.label}</option>`).join("");
+  $("quarter").value = Q;
+  $("quarter").addEventListener("change", e => { Q = +e.target.value; render(); });
+  $("asof").textContent = `Market data to ${DATA.asof} · built ${DATA.built}`;
+  $("presets").innerHTML = DATA.presets.map((p, i) => `<button type="button" data-i="${i}">${p.name}</button>`).join("");
+  $("presets").addEventListener("click", e => { const i = e.target.dataset.i; if (i === undefined) return; S = {...DATA.presets[i].scenario}; render(); });
+  $("foot").innerHTML = `Sources: Mavi Giyim consolidated financial statements filed on KAP; TCMB EVDS (FX, deposit, commercial loan rates). Amounts in Turkish lira. Built by Altay Marco Ocaklı as part of the Mavi Treasury Simulation — <a href="https://github.com/mrcocakli/mavi_financial_simulation" style="color:var(--accent)">source on GitHub</a>.`;
+  buildControls(); render();
+}
+init();
+</script>
+</body>
+</html>

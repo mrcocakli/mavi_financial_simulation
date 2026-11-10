@@ -1,11 +1,11 @@
 # Mavi Giyim (BIST: MAVI) — Treasury Report
-*Generated 2026-08-24 16:04 | Data through 2026-04-30*
+*Generated 2026-11-10 22:38 | Data through 2026-04-30*
 
 ## Headline — Latest Quarter
 
 **Period:** 2026-04-30 (FY2026 Q1)
 
-- Cash Conversion Cycle: **22.3 days** (DIO 104.8 + DSO 26.1 − DPO 108.7)
+- Cash Conversion Cycle: **21.8 days** (DIO 102.5 + DSO 25.6 − DPO 106.3)
 
 **FX Exposure (balance sheet, latest quarter):**
 
@@ -34,9 +34,9 @@
 
 | Period | DIO | DSO | DPO | CCC |
 |---|---|---|---|---|
-| 2025-10-31 | 114.2 | 26.3 | 90.8 | 49.7 |
+| 2025-10-31 | 115.5 | 26.5 | 91.8 | 50.2 |
 | 2026-01-31 | 75.6 | 18.5 | 73.0 | 21.1 |
-| 2026-04-30 | 104.8 | 26.1 | 108.7 | 22.3 |
+| 2026-04-30 | 102.5 | 25.6 | 106.3 | 21.8 |
 
 ### Hedging — Full History
 
@@ -55,6 +55,6 @@
 
 | Period | Baseline WC | Factoring Saving | LC Cost | SCF Cost |
 |---|---|---|---|---|
-| 2025-10-31 | +604,161k TRY | -94,521k TRY | +87,143k TRY | +702,373k TRY |
+| 2025-10-31 | +610,800k TRY | -95,559k TRY | +88,101k TRY | +710,091k TRY |
 | 2026-01-31 | +353,468k TRY | -64,097k TRY | +85,429k TRY | +654,953k TRY |
 | 2026-04-30 | +382,981k TRY | -68,124k TRY | +103,638k TRY | +799,222k TRY |
