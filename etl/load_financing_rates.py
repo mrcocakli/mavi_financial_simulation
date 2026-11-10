@@ -40,6 +40,31 @@ def fetch_series(code):
     return df
 
 
+def upsert_lc_assumption(conn):
+    """LC commission: fixed assumption, one row per quarter that has financials.
+
+    Periods come from financial_statements_raw, so a newly loaded quarter gets
+    its row automatically (this list used to be hardcoded, which silently
+    dropped new quarters from the financing comparison).
+    """
+    cur = conn.cursor()
+    periods = [r[0] for r in cur.execute(
+        "SELECT DISTINCT substr(period_end, 1, 7) FROM financial_statements_raw ORDER BY 1")]
+    for period in periods:
+        cur.execute(
+            """
+            INSERT INTO financing_rates_raw
+                (period, rate_type, rate_pct, series_code, source_url, notes, retrieved_at)
+            VALUES (?,?,?,?,?,?,?)
+            ON CONFLICT(period, rate_type) DO UPDATE SET
+                rate_pct=excluded.rate_pct, notes=excluded.notes, retrieved_at=excluded.retrieved_at
+            """,
+            (period, "lc_commission", LC_COMMISSION_RATE, None, LC_SOURCE, LC_NOTES,
+             datetime.now().isoformat()),
+        )
+    conn.commit()
+
+
 def main():
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
@@ -65,19 +90,7 @@ def main():
         conn.commit()
         print(f"  {len(df)} rows upserted for {rate_type}")
 
-    # LC commission: fixed assumption, one row per period we care about
-    for period in ("2025-10", "2026-01", "2026-04"):
-        cur.execute(
-            """
-            INSERT INTO financing_rates_raw
-                (period, rate_type, rate_pct, series_code, source_url, notes, retrieved_at)
-            VALUES (?,?,?,?,?,?,?)
-            ON CONFLICT(period, rate_type) DO UPDATE SET
-                rate_pct=excluded.rate_pct, notes=excluded.notes, retrieved_at=excluded.retrieved_at
-            """,
-            (period, "lc_commission", LC_COMMISSION_RATE, None, LC_SOURCE, LC_NOTES,
-             datetime.now().isoformat()),
-        )
+    upsert_lc_assumption(conn)
     conn.commit()
     conn.close()
     print("LC commission assumption rows added.")

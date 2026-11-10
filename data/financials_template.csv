@@ -1,4 +1,9 @@
 period_end,fiscal_year,fiscal_quarter,statement_type,line_item_en,line_item_tr,value_try,unit,source_url,filed_date
+2026-07-31,2026,2,BS,inventory,Stoklar,8074306,TRY_thousand,https://kap.org.tr/tr/api/file/download/4028328ca09bee8f01a0aa3314df7959,2026-09-16
+2026-07-31,2026,2,BS,accounts_receivable,Ticari Alacaklar,2783622,TRY_thousand,https://kap.org.tr/tr/api/file/download/4028328ca09bee8f01a0aa3314df7959,2026-09-16
+2026-07-31,2026,2,BS,accounts_payable,Ticari Borçlar,8054205,TRY_thousand,https://kap.org.tr/tr/api/file/download/4028328ca09bee8f01a0aa3314df7959,2026-09-16
+2026-07-31,2026,2,IS,revenue,Hasılat,12553045,TRY_thousand,https://kap.org.tr/tr/api/file/download/4028328ca09bee8f01a0aa3314df7959,2026-09-16
+2026-07-31,2026,2,IS,cogs,Satışların Maliyeti,5921504,TRY_thousand,https://kap.org.tr/tr/api/file/download/4028328ca09bee8f01a0aa3314df7959,2026-09-16
 2026-04-30,2026,1,BS,inventory,Stoklar,6831092,TRY_thousand,http://media.mavi.com/mavicompany/2026/Q1/1Q-26-Finansal-Rapor.pdf,2026-06-09
 2026-04-30,2026,1,BS,accounts_receivable,Ticari Alacaklar,3647316,TRY_thousand,http://media.mavi.com/mavicompany/2026/Q1/1Q-26-Finansal-Rapor.pdf,2026-06-09
 2026-04-30,2026,1,BS,accounts_payable,Ticari Borçlar,7083875,TRY_thousand,http://media.mavi.com/mavicompany/2026/Q1/1Q-26-Finansal-Rapor.pdf,2026-06-09
