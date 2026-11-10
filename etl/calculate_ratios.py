@@ -17,8 +17,8 @@ Notes on choices (state these explicitly if asked in an interview):
   reports income statement items cumulatively. Q1 cumulative = Q1 standalone.
   Q2 standalone = Q2 cumulative - Q1 cumulative. Q3 standalone = Q3 cum - Q2 cum.
   Q4 standalone = FY cum - Q3 cum.
-- days_in_quarter uses actual calendar days between the prior quarter-end and
-  this quarter-end (not a flat 91.25), for accuracy.
+- days_in_quarter uses the actual calendar days of the fiscal quarter (period
+  end less the month end three months earlier), not a flat 91.25.
 
 Usage:
     python etl/calculate_ratios.py
@@ -28,6 +28,10 @@ from pathlib import Path
 from datetime import datetime, date
 import os
 from dotenv import load_dotenv
+
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from simulator_engine import quarter_days  # noqa: E402
 
 load_dotenv()
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -79,11 +83,16 @@ def get_standalone_revenue_cogs(pivot, fy, fq):
 
 
 def days_between(prev_period_end, period_end):
-    if prev_period_end is None:
-        return 91  # fallback for the first quarter you load, no prior period to diff against
-    d1 = date.fromisoformat(prev_period_end)
-    d2 = date.fromisoformat(period_end)
-    return (d2 - d1).days
+    """Actual calendar days in the fiscal quarter ending on period_end.
+
+    Derived from period_end alone (month end three months earlier), so it no
+    longer depends on the prior quarter being loaded or sitting in the same
+    fiscal year. The earlier version fell back to a flat 91 days in both of
+    those cases, which mis-stated DIO/DSO/DPO for Q1 of every fiscal year and
+    for the first quarter in the database. prev_period_end is kept in the
+    signature for backward compatibility and is not used.
+    """
+    return quarter_days(period_end)
 
 
 def calculate_ratios():

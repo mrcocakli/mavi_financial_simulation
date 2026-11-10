@@ -2,8 +2,6 @@
 venv/
 __pycache__/
 *.pyc
-db/mavi_treasury.db
-reports/*.xlsx
 reports/*.pdf
 reports/*.pptx
 .ipynb_checkpoints/

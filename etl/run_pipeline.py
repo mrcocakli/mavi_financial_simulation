@@ -30,6 +30,9 @@ STEPS = [
     ("Financing scenario comparison", "etl/calculate_financing_scenarios.py"),
     ("Monthly report (Markdown + HTML)", "etl/generate_monthly_report.py"),
     ("Monthly report (Excel)", "etl/generate_monthly_report_xlsx.py"),
+    ("Treasury simulator (Excel)", "etl/build_simulator_xlsx.py"),
+    ("Treasury simulator (web page)", "etl/build_simulator_html.py"),
+    ("Recalculate Excel outputs (LibreOffice, skipped if not installed)", "etl/recalc_xlsx.py"),
     ("Data verification", "verify_data.py"),
 ]
 
@@ -70,6 +73,9 @@ def main():
 
     all_ok = all(ok for _, ok in results) and len(results) == len(STEPS)
     print(f"\n{'Completed successfully.' if all_ok else 'Pipeline stopped early — see failure above.'}")
+    # Non-zero exit on failure so a scheduled run (GitHub Actions) is marked
+    # failed instead of committing a half-refreshed database.
+    sys.exit(0 if all_ok else 1)
 
 
 if __name__ == "__main__":

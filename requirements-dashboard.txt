@@ -1,0 +1,3 @@
+# Only needed for the Streamlit page (dashboard/simulator_app.py)
+-r requirements.txt
+streamlit>=1.36

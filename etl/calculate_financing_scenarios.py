@@ -5,6 +5,11 @@ SCF) layered on the real CCC balances from financial_ratios.
 
 import sqlite3
 from datetime import date, datetime
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from simulator_engine import quarter_days  # noqa: E402
 
 DB_PATH = "db/mavi_treasury.db"
 COMPANY_ID = 1
@@ -41,12 +46,10 @@ def main():
         period_ym = period_end[:7]
         inv, ar, ap = row["inventory"], row["accounts_receivable"], row["accounts_payable"]
 
-        if i > 0:
-            d1 = date.fromisoformat(rows[i - 1]["period_end"])
-            d2 = date.fromisoformat(period_end)
-            days = (d2 - d1).days
-        else:
-            days = 91
+        # Actual calendar days of the fiscal quarter. Derived from period_end
+        # alone, so the first quarter in the database no longer falls back to
+        # a flat 91 days and a missing quarter cannot stretch the day count.
+        days = quarter_days(period_end)
 
         comm_rate = get_rate(cur, period_ym, "commercial_loan")
         fact_rate = get_rate(cur, period_ym, "factoring")
