@@ -1,5 +1,5 @@
 # Mavi Giyim (BIST: MAVI) — Treasury Report
-*Generated 2026-11-10 20:30 | Data through 2026-07-31*
+*Generated 2026-11-10 20:35 | Data through 2026-07-31*
 
 ## Headline — Latest Quarter
 
@@ -23,9 +23,9 @@
 
 **Financing costs, latest quarter:**
 
-- Baseline working-capital cost: +382,981k TRY
-- Factoring vs. baseline (AR): -68,124k TRY (negative = factoring costs more)
-- LC cost: +103,638k TRY | SCF cost: +799,222k TRY *(not directly comparable — see note)*
+- Baseline working-capital cost: +332,004k TRY
+- Factoring vs. baseline (AR): -53,534k TRY (negative = factoring costs more)
+- LC cost: +121,806k TRY | SCF cost: +953,741k TRY *(not directly comparable — see note)*
 
 ---
 ## Appendix — Full Trend
@@ -61,3 +61,4 @@
 | 2025-10-31 | +610,800k TRY | -95,559k TRY | +88,101k TRY | +710,091k TRY |
 | 2026-01-31 | +353,468k TRY | -64,097k TRY | +85,429k TRY | +654,953k TRY |
 | 2026-04-30 | +382,981k TRY | -68,124k TRY | +103,638k TRY | +799,222k TRY |
+| 2026-07-31 | +332,004k TRY | -53,534k TRY | +121,806k TRY | +953,741k TRY |
