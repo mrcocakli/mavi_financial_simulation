@@ -18,10 +18,12 @@ import sys
 from datetime import datetime
 
 STEPS = [
+    # Financials load first: the LC assumption in the financing-rates step is
+    # written per quarter found in the database, so a new quarter must exist by then.
+    ("Financials (from CSV — update manually first)", "etl/load_financials.py"),
     ("FX rates (EVDS)", "etl/load_fx_rates.py"),
     ("Interest rates (EVDS)", "etl/load_interest_rates.py"),
     ("Financing rates (EVDS + LC assumption)", "etl/load_financing_rates.py"),
-    ("Financials (from CSV — update manually first)", "etl/load_financials.py"),
     ("Cash conversion cycle ratios", "etl/calculate_ratios.py"),
     ("FX exposure (from CSV — update manually first)", "etl/load_fx_exposure.py"),
     ("FX sensitivity", "etl/calculate_fx_sensitivity.py"),
